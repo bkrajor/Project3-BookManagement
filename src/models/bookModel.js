@@ -25,10 +25,10 @@ const bookModel = new mongoose.Schema({
         type: Number, default: 0, comment: String
     },
     deletedAt: {
-        type: Date, default: moment(new Date()).format("YYYY-MM-DD")
+        type: Date,
     },
     isDeleted: {
-        type: boolean, default: false
+        type: Boolean, default: false
     },
     releasedAt: {
         type: Date, required: true, default: moment(new Date()).format("YYYY-MM-DD")
