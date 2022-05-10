@@ -1,5 +1,6 @@
 const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
+const mongoose = require("mongoose")
 
 const keyValid = (key) => {
     if (typeof (key) === 'undefined' || typeof (key) === 'null') return true
@@ -49,7 +50,7 @@ const getBooks = async (req, res) => {
         let userId = data.userId
 
         if (userId)
-            if (!mongoose.isValidObjectId(data.userId)) return res.status(400).send({ status: false, message: "UserId is invalid" })
+            if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: "UserId is invalid" })
 
         let books = await bookModel
             .find({ $and: [data, { isDeleted: false }] })
@@ -69,13 +70,13 @@ const getBookById = async function (req, res) {
     try {
         const bookId = req.params.bookId
 
-        if (!mongoose.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "BookId is Invalid" })
+        if (!mongoose.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Invalid BookId" })
 
         const book = await bookModel
             .find({ _id: bookId, isDeleted: false })
             .select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
 
-        if (!book) return res.status(400).send({ status: false, message: "Book is not found or book is deleted" })
+        if (book.length == 0) return res.status(400).send({ status: false, message: "Book is not found or book is deleted" })
 
         return res.status(200).send({ status: true, data: book })
 
