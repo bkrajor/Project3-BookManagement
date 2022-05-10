@@ -9,7 +9,11 @@ router.post('/login', userController.userlogin)
 
 router.post('/books',bookController.createBook)
 
-router.get('/books',bookController.getAllBooks)
+router.get('/books',bookController.getBooks)
+
+router.get('/books/:bookId',bookController.getBookById)
+
+router.delete('/books/:bookId',bookController.deleteBookById)
 
 
 module.exports = router; 

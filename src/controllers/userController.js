@@ -35,12 +35,12 @@ const createUser = async (req, res) => {
         if (!password) return res.status(400).send({ status: false, message: "Password is required" })
         if (!(password.length >= 8 && password.length <= 15)) return res.status(400).send({ status: false, message: "Password must be in 8 to 15 characters" })
 
-
-        if (typeof address !== "object") return res.status(400).send({ status: false, message: "Invalid address" })
-        if (keyValid(address.street)) return res.status(400).send({ status: false, message: "Invalid street" })
-        if (keyValid(address.city)) return res.status(400).send({ status: false, message: "Invalid city" })
-        if (!/^[a-zA-Z ]{3,30}$/.test(address.city)) return res.status(400).send({ status: false, message: "Invalid city name" })
-        if (!/^[1-9]\d{5}$/.test(address.pincode)) return res.status(400).send({ status: false, message: "Invalid pincode" })
+        
+        // if (typeof address !== "object") return res.status(400).send({ status: false, message: "Invalid address" })
+        // if (keyValid(address.street)) return res.status(400).send({ status: false, message: "Invalid street" })
+        // if (keyValid(address.city)) return res.status(400).send({ status: false, message: "Invalid city" })
+        // if (!/^[a-zA-Z ]{3,30}$/.test(address.city)) return res.status(400).send({ status: false, message: "Invalid city name" })
+        // if (!/^[1-9]\d{5}$/.test(address.pincode)) return res.status(400).send({ status: false, message: "Invalid pincode" })
 
         // -----------------validation ends here------------------
 

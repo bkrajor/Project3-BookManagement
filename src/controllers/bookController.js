@@ -8,10 +8,6 @@ const keyValid = (key) => {
     return false
 }
 
-const isValidObjectId = (id) => {
-    return mongoose.isValidObjectId(id)
-}
-
 const createBook = async (req, res) => {
     try {
         let data = req.body
@@ -48,39 +44,69 @@ const createBook = async (req, res) => {
     }
 }
 
-const getAllBooks = async (req, res) => {
+const getBooks = async (req, res) => {
     try {
         let data = req.query
-        let filter = { isDeleted: false }
-
-        const { title, userId, category, subcategory } = data
-
-        if (title)
-            if (!keyValid(title)) filter.title = title.trim()
+        let userId = data.userId
 
         if (userId)
-            if (!isValidObjectId) filter.userId = userId.trim()
+            if (!mongoose.isValidObjectId(data.userId)) return res.status(400).send({ status: false, message: "UserId is invalid" })
 
-        if (category)
-            if (!keyValid(category)) filter.category = category.trim()
+        let books = await bookModel
+            .find({ $and: [data, { isDeleted: false }] })
+            .select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+            .sort({ title: 1 })
 
-        if (subcategory)
-            if (!keyValid(subcategory)) filter.subcategory = subcategory.trim()
+        if (!books) return res.status(400).send({ status: false, msg: 'No book found or book is deleted' })
 
-        console.log(filter)
+        return res.status(200).send({ status: true, data: books })
+    }
+    catch (err) {
+        return res.status(400).send({ status: false, msg: err.message })
+    }
+}
 
-        const books = await bookModel.find(filter)
+const getBookById = async function (req, res) {
+    try {
+        const bookId = req.params.bookId
 
-        if (books.length == 0) return res.status(404).send({ status: false, message: "No book found" })
+        if (!mongoose.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "BookId is Invalid" })
 
-        res.status(200).send({ status: true, data: books })
+        const book = await bookModel
+            .find({ _id: bookId, isDeleted: false })
+            .select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+
+        if (!book) return res.status(400).send({ status: false, message: "Book is not found or book is deleted" })
+
+        return res.status(200).send({ status: true, data: book })
+
+    }
+    catch (err) {
+        res.status(500).send({ status: false, Message: err.message })
+
+    }
+}
+
+const deleteBookById = async function (req, res) {
+    try {
+        let bookId = req.params.bookId
+        if (!mongoose.isValidObjectId(bookId)) return res.status(400).send({ status: false, msg: "Invalid BookId" })
+
+        let bookData = await bookModel.findOne({ _id: bookId, isDeleted: false })
+
+        if (!bookData) return res.status(404).send({ status: false, msg: "Book not found or book is already deleted" })
+
+        bookData.isDeleted = true
+        bookData.deletedAt = new Date()
+        bookData.save()
+
+        res.status(200).send({ status: true, msg: "Data deleted succesfully", data: bookData })
 
     } catch (err) {
-        res.status(500).send({ status: false, message: err.message })
+        return res.status(500).send({ status: false, err: err.message })
     }
-
-
 }
 
 
-module.exports = { createBook, getAllBooks }
+
+module.exports = { createBook, getBooks, getBookById, deleteBookById }
