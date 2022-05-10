@@ -1,4 +1,3 @@
-const { default: mongoose } = require('mongoose')
 const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
 
@@ -26,7 +25,7 @@ const createBook = async (req, res) => {
         const isUser = await userModel.findById({ _id: userId })
         if (!isUser) return res.status(400).send({ status: false, message: "No user found with the given id" })
 
-        if (keyValid(ISBN)) return res.status(400).send({ status: false, message: "" })
+        if (keyValid(ISBN)) return res.status(400).send({ status: false, message: "Please provide ISBN" })
         const isISBN = await bookModel.findOne({ ISBN: ISBN, isDeleted: false })
         if (isISBN) return res.status(400).send({ status: false, message: "ISBN is already present" })
 
