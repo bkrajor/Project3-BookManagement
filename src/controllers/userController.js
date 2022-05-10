@@ -15,21 +15,33 @@ const createUser = async (req, res) => {
         const { title, name, phone, email, password, address } = data
 
         // ---------------validation starts from here----------------
-        if (["Mr", "Miss", "Mrs"].indexOf(title) == -1) return res.status(400).send({ status: false, message: "Please enter a valid title" })
+        if (!title) return res.status(400).send({ status: false, message: "Title is required" })
+        if (["Mr", "Miss", "Mrs"].indexOf(title) == -1) return res.status(400).send({ status: false, message: "Invalid title" })
 
-        if (!/^[a-zA-Z\s]*$/.test(name)) return res.status(400).send({ status: false, message: "Please provide valid name" })
+        if (!name) return res.status(400).send({ status: false, message: "Name is required" })
+        if (keyValid(name)) return res.status(400).send({ status: false, message: "Invalid name" })
+        if (!/^[a-zA-Z ]{3,30}$/.test(name)) return res.status(400).send({ status: false, message: "Invalid name format" })
 
-        if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) return res.status(400).send({ status: false, message: "Email format is invalid" })
-        const existingEmail = await userModel.findOne({ email: email })
-        if (existingEmail) return res.status(400).send({ status: false, Message: "Email is already exists" })
-
-        if (!/^[6-9]\d{9}$/.test(phone)) return res.status(400).send({ status: false, message: "Enter a valid mobile number." })
+        if (!phone) return res.status(400).send({ status: false, message: "Phone number is required" })
+        if (!/^[6-9]\d{9}$/.test(phone)) return res.status(400).send({ status: false, message: "Invalid Number" })
         const existingMobile = await userModel.findOne({ phone: phone })
         if (existingMobile) return res.status(400).send({ status: false, Message: "Mobile number is already exists" })
 
+        if (!email) return res.status(400).send({ status: false, message: "Email is required" })
+        if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) return res.status(400).send({ status: false, message: "Invalid email" })
+        const existingEmail = await userModel.findOne({ email: email })
+        if (existingEmail) return res.status(400).send({ status: false, Message: "Email is already exists" })
+
+        if (!password) return res.status(400).send({ status: false, message: "Password is required" })
         if (!(password.length >= 8 && password.length <= 15)) return res.status(400).send({ status: false, message: "Password must be in 8 to 15 characters" })
 
-        if (keyValid(address)) return res.status(400).send({ status: false, message: "Please provide address" })
+
+        if (typeof address !== "object") return res.status(400).send({ status: false, message: "Invalid address" })
+        if (keyValid(address.street)) return res.status(400).send({ status: false, message: "Invalid street" })
+        if (keyValid(address.city)) return res.status(400).send({ status: false, message: "Invalid city" })
+        if (!/^[a-zA-Z ]{3,30}$/.test(address.city)) return res.status(400).send({ status: false, message: "Invalid city name" })
+        if (!/^[1-9]\d{5}$/.test(address.pincode)) return res.status(400).send({ status: false, message: "Invalid pincode" })
+
         // -----------------validation ends here------------------
 
         const newUser = await userModel.create(data)
@@ -50,9 +62,9 @@ const userlogin = async (req, res) => {
         const user = await userModel.findOne({ email: email, password: password })
         if (!user) return res.status(400).send({ status: false, Message: "Email or password is not valid" })
 
-        const token = jwt.sign({ userId: user._id }, "BookManagement_Group36", {expiresIn:"10 minutes"})
+        const token = jwt.sign({ userId: user._id }, "BookManagement_Group36", { expiresIn: "10 minutes" })
         res.status(200).send({ status: true, Message: "User login Successfully", Data: token })
-    
+
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })
     }

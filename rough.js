@@ -1,5 +1,2 @@
-let arr=['hi', 'hello']
-
-let arr1=arr.split()
-
-console.log(arr1)
+let obj={a:"1",b:"2"}
+console.log(typeof obj)
