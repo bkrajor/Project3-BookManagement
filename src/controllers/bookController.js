@@ -22,12 +22,12 @@ const createBook = async (req, res) => {
 
         // ---------------Validation starts from here----------------
         if (!title) return res.status(400).send({ status: false, message: "Title is required" })
-        if (keyValid(title)) return res.status(400).send({ status: false, message: "Please provide a valid title" })
+        if (keyValid(title)) return res.status(400).send({ status: false, message: "Invalid title" })
         const isTitle = await bookModel.findOne({ title: title, isDeleted: false })
         if (isTitle) return res.status(400).send({ status: false, message: "Title is already present" })
 
         if (!excerpt) return res.status(400).send({ status: false, message: "Excerpt is required" })
-        if (keyValid(excerpt)) return res.status(400).send({ status: false, message: "Please provide a valid excerpt" })
+        if (keyValid(excerpt)) return res.status(400).send({ status: false, message: "Invalid excerpt" })
 
         if (!userId) return res.status(400).send({ status: false, message: "UserId is required" })
         if (!validObjectId(userId)) return res.status(400).send({ status: false, message: "Invalid userId" })
@@ -37,17 +37,16 @@ const createBook = async (req, res) => {
         // -------------Checking the userId with the logged in userId to AUTHORIZE the user-------------------
         if (req.userId != userId) return res.status(401).send({ status: false, message: "UserId is not matched with your UserId while creating the book" })
 
-        // ------------Checking the uniqueness of the Unique keys------------------
         if (!ISBN) return res.status(400).send({ status: false, message: "ISBN is required" })
-        if (keyValid(ISBN)) return res.status(400).send({ status: false, message: "Please provide a valid ISBN" })
+        if (keyValid(ISBN)) return res.status(400).send({ status: false, message: "invalid ISBN" })
         const isISBN = await bookModel.findOne({ ISBN: ISBN, isDeleted: false })
         if (isISBN) return res.status(400).send({ status: false, message: "ISBN is already present" })
 
         if (!category) return res.status(400).send({ status: false, message: "Category is required" })
-        if (keyValid(category)) return res.status(400).send({ status: false, message: "Please provide a valid category" })
+        if (keyValid(category)) return res.status(400).send({ status: false, message: "Invalid category" })
 
         if (!subcategory) return res.status(400).send({ status: false, message: "Subcategory is required" })
-        if (keyValid(subcategory)) return res.status(400).send({ status: false, message: "Please provide a valid subcategory" })
+        if (keyValid(subcategory)) return res.status(400).send({ status: false, message: "Invalid subcategory" })
         // -----------------Validation ends here------------------
 
         const newBook = await bookModel.create(data)
@@ -130,16 +129,27 @@ const updateBook = async function (req, res) {
         const data = req.body
         const bookId = req.params.bookId
 
-        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please provide some data to update..!!" })
-
         if (!validObjectId(bookId)) return res.status(400).send({ status: false, message: "Invalid BookId" })
 
-        // ------------Checking the uniqueness of the Unique keys------------------
-        const isTitle = await bookModel.findOne({ title: data.title, isDeleted: false })
-        if (isTitle) return res.status(400).send({ status: false, message: "Title is aready present is the DataBase..!!" })
+        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please provide some data to update..!!" })
 
-        const isISBN = await bookModel.findOne({ ISBN: data.ISBN, isDeleted: false })
-        if (isISBN) return res.status(400).send({ status: false, message: "ISBN is already present in the DataBase..!!" })
+        const { title, ISBN, excerpt, releasedAt } = data
+
+        // ----------------Validation starts from here---------------
+        if (title) {
+            if (keyValid(title)) return res.status(400).send({ status: false, message: "Invalid title" })
+            const isTitle = await bookModel.findOne({ title: data.title, isDeleted: false })
+            if (isTitle) return res.status(400).send({ status: false, message: "Title is aready present is the DataBase..!!" })
+        }
+        if (ISBN) {
+            if (keyValid(ISBN)) return res.status(400).send({ status: false, message: "Invalid ISBN" })
+            const isISBN = await bookModel.findOne({ ISBN: data.ISBN, isDeleted: false })
+            if (isISBN) return res.status(400).send({ status: false, message: "ISBN is already present in the DataBase..!!" })
+        }
+        if(excerpt){
+            if(keyValid(excerpt)) return res.status(400).send({ status: false, message: "Invalid excerpt" })
+        }
+        // -----------------Validation ends here--------------------
 
         const updatingData = await bookModel.findByIdAndUpdate({ _id: bookId }, { ...data }, { new: true })
         res.status(200).send({ status: true, data: updatingData })
