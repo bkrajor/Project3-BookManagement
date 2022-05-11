@@ -34,6 +34,8 @@ const createBook = async (req, res) => {
         const isUser = await userModel.findById({ _id: userId })
         if (!isUser) return res.status(400).send({ status: false, message: "No user found with the given id" })
 
+        if(req.userId!=userId) return res.status(401).send({status:false, message:"You are not authorized"})
+
         if (!ISBN) return res.status(400).send({ status: false, message: "ISBN is required" })
         if (keyValid(ISBN)) return res.status(400).send({ status: false, message: "Please provide ISBN" })
         const isISBN = await bookModel.findOne({ ISBN: ISBN, isDeleted: false })
@@ -67,7 +69,7 @@ const getBooks = async (req, res) => {
                 if (!keyValid(userId) && validObjectId(userId)) { filter.userId = userId.trim() }
 
             if (category)
-            
+
                 if (!keyValid(category)) { filter.category = category.trim() }
 
             if (subcategory)
@@ -116,13 +118,9 @@ const updateBook = async function (req, res) {
         const data = req.body
         const bookId = req.params.bookId
 
-        if (!Object.keys(data).length == 0) return res.status(400).send({ status: false, Message: "Please provide the data to update..!!" })
+        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, Message: "Please provide the data to update..!!" })
 
         if (!validObjectId(bookId)) return res.status(400).send({ status: false, Message: "Please provide the valid Id..!!" })
-
-        const findBook = await bookModel.findById({ _id: bookId, isDeleted: false })
-
-        if (!findBook) return res.status(404).send({ status: false, message: "Book is not present..!!" })
 
         const isTitle = await bookModel.findOne({ title: data.title, isDeleted: false })
         if (isTitle) return res.status(400).send({ status: false, message: "This title is aready present is the DataBase..!!" })
@@ -132,7 +130,7 @@ const updateBook = async function (req, res) {
 
         // const updatingData= await bookModel.findByIdAndUpdate({_id:bookId, userId: userId}, {$set:{title: data.title, excerpt: data.excerpt, releasedAt: data.releasedAt , ISBN: data.ISBN}},{new : true})
 
-        const updatingData = await bookModel.findByIdAndUpdate({ _id: bookId, userId: findBook.userId }, { ...data }, { new: true })
+        const updatingData = await bookModel.findByIdAndUpdate({ _id: bookId }, { ...data }, { new: true })
         res.status(200).send({ status: true, data: updatingData })
     }
     catch (err) {

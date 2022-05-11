@@ -68,8 +68,8 @@ const userlogin = async (req, res) => {
         const user = await userModel.findOne({ email: email, password: password })
         if (!user) return res.status(400).send({ status: false, Message: "Email or password is not valid" })
 
-        const token = jwt.sign({ userId: user._id }, "BookManagement_Group36", { expiresIn: "10 minutes" })
-        res.status(200).send({ status: true, Message: "User login Successfully", Data: token })
+        const token = jwt.sign({ userId: user._id }, "BookManagement_Group36", { expiresIn: "60 minutes" })
+        res.status(200).send({ status: true, Message: "User login Successfully", token: token })
 
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })
