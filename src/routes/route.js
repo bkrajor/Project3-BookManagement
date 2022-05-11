@@ -4,7 +4,8 @@ const userController = require('../controllers/userController')
 const bookController = require('../controllers/bookController')
 const { authenticate, authorize } = require('../middleware/auth')
 
-router.post('/register', userController.createUser)
+
+router.post('/register', userController.createUser) 
 
 router.post('/login', userController.userlogin)
 
@@ -14,9 +15,11 @@ router.get('/books',authenticate, bookController.getBooks)
 
 router.get('/books/:bookId',authenticate, bookController.getBookById)
 
+router.put('/books/:bookId', authenticate, authorize, bookController.updateBook)
+
 router.delete('/books/:bookId', authenticate, authorize, bookController.deleteBookById)
 
-router.put('/books/:bookId', authenticate, authorize, bookController.updateBook)
+
 
 
 module.exports = router; 
