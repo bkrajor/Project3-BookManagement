@@ -66,7 +66,7 @@ const getBooks = async (req, res) => {
             const { userId, category, subcategory, title } = data
 
             if (userId)
-                if (!keyValid(userId) && validObjectId(userId)) { filter.userId = userId.trim() }
+                if (!validObjectId(userId)) { filter.userId = userId.trim() }
 
             if (category)
 
