@@ -25,12 +25,12 @@ const createUser = async (req, res) => {
         if (!phone) return res.status(400).send({ status: false, message: "Phone number is required" })
         if (!/^[6-9]\d{9}$/.test(phone)) return res.status(400).send({ status: false, message: "Invalid Number" })
         const existingMobile = await userModel.findOne({ phone: phone })
-        if (existingMobile) return res.status(400).send({ status: false, Message: "Mobile number is already exists" })
+        if (existingMobile) return res.status(400).send({ status: false, message: "Mobile number is already exists" })
 
         if (!email) return res.status(400).send({ status: false, message: "Email is required" })
         if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) return res.status(400).send({ status: false, message: "Invalid email" })
         const existingEmail = await userModel.findOne({ email: email })
-        if (existingEmail) return res.status(400).send({ status: false, Message: "Email is already exists" })
+        if (existingEmail) return res.status(400).send({ status: false, message: "Email is already exists" })
 
         if (!password) return res.status(400).send({ status: false, message: "Password is required" })
         if (!(password.length >= 8 && password.length <= 15)) return res.status(400).send({ status: false, message: "Password must be in 8 to 15 characters" })
@@ -46,7 +46,7 @@ const createUser = async (req, res) => {
 
         const newUser = await userModel.create(data)
 
-        res.status(201).send({ status: true, Message: "User created successfully", Data: newUser })
+        res.status(201).send({ status: true, message: "User created successfully", data: newUser })
 
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })
@@ -67,11 +67,11 @@ const userlogin = async (req, res) => {
 
         // ---------------finding user in DB after validating email and password--------------
         const user = await userModel.findOne({ email: email, password: password })
-        if (!user) return res.status(400).send({ status: false, Message: "Email or password is  invalid" })
+        if (!user) return res.status(400).send({ status: false, message: "Email or password is  invalid" })
 
         // ---------------generating token after successful login--------------
         const token = jwt.sign({ userId: user._id }, "BookManagement_Group36", { expiresIn: "60 minutes" })
-        res.status(200).send({ status: true, Message: "User login Successfully", token: token })
+        res.status(200).send({ status: true, message: "User login Successfully", token: token })
 
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })

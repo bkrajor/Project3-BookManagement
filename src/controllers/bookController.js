@@ -91,9 +91,9 @@ const getBooks = async (req, res) => {
         }
         // ---------------Validation ends for query filters---------------
 
-        let getBooks = await bookModel.find(filterObject)
-        if (getBooks.length == 0) return res.status(400).send({ status: false, message: "No book found" })
-        return res.status(200).send({ status: true, message: "Book list", data: getBooks })
+        let booksData = await bookModel.find(filterObject)
+        if (booksData.length == 0) return res.status(400).send({ status: false, message: "No book found" })
+        return res.status(200).send({ status: true, message: "Book list", data: booksData })
     }
     catch (err) {
         res.status(500).send({ Error: err.message })
@@ -108,13 +108,13 @@ const getBookById = async function (req, res) {
 
         if (!validObjectId(bookId)) return res.status(400).send({ status: false, message: "Invalid BookId" })
 
-        const book = await bookModel
+        const bookData = await bookModel
             .find({ _id: bookId, isDeleted: false })
             .select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
 
-        if (book.length == 0) return res.status(400).send({ status: false, message: "Book is not found or book is deleted" })
+        if (bookData.length == 0) return res.status(400).send({ status: false, message: "Book is not found or book is deleted" })
 
-        return res.status(200).send({ status: true, data: book })
+        return res.status(200).send({ status: true, data: bookData })
 
     }
     catch (err) {
