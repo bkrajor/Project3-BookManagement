@@ -1,15 +1,18 @@
 let jwt = require("jsonwebtoken")
 const bookModel = require("../models/bookModel")
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 let authenticate = async function (req, res, next) {
     try {
         const token = req.headers["x-api-key"]
-        if (!token) return res.status(403).send({ status: false, msg: "Authentication failed" })
+        if (!token) return res.status(403).send({ status: false, message: "Authentication failed" })
         
         let decodedToken=jwt.verify(token, "BookManagement_Group36")
         
-        if (!decodedToken) return res.status(400).send({ status: false, msg: "Token is invalid" });
+        if (!decodedToken) return res.status(400).send({ status: false, message: "Token is invalid" });
 
+        // ------setting userId in the req---------
         req.userId = decodedToken.userId
         next()
     }
@@ -18,15 +21,16 @@ let authenticate = async function (req, res, next) {
     }
 }
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 let authorize = async function (req, res, next) {
     try {
         const bookId = req.params.bookId
         const book = await bookModel.findOne({ _id: bookId, isDeleted: false })
 
-        if (!book) return res.status(404).send({ status: false, msg: "No book exits with this Id or the book is deleted" })
+        if (!book) return res.status(404).send({ status: false, message: "No book exists with this id or the book is deleted" })
 
-        if (req.userId != book.userId) return res.status(403).send({ status: false, msg: "You are not Authorized" })
-
+        if (req.userId != book.userId) return res.status(403).send({ status: false, message: "You are not Authorized" })
         next()
     }
     catch (err) {
@@ -34,5 +38,6 @@ let authorize = async function (req, res, next) {
     }
 }
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 module.exports = { authenticate, authorize }
