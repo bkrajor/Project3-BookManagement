@@ -2,6 +2,7 @@ const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
 const { default: mongoose } = require("mongoose");
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 const keyValid = (key) => {
     if (typeof (key) === 'undefined' || typeof (key) === 'null') return true
     if (typeof (key) === 'string' && key.trim().length === 0) return true
@@ -80,8 +81,7 @@ const getBooks = async (req, res) => {
 
             if (subcategory)
                 if (!keyValid(subcategory)) {
-                    const subcategoryArray = subcategory.trim().split(",").map(subcategory => subcategory.trim())
-                    filterObject.subcategory = { $all: subcategoryArray }
+                    filterObject.subCategory = category.trim()
                 }
             if (title)
                 if (!keyValid(title)) {
