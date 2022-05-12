@@ -19,9 +19,9 @@ router.get('/books',authenticate, bookController.getBooks)
 
 router.get('/books/:bookId',authenticate, bookController.getBookById)
 
-router.delete('/books/:bookId', authenticate, authorize, bookController.deleteBookById)
-
 router.put('/books/:bookId', authenticate, authorize, bookController.updateBook)
+
+router.delete('/books/:bookId', authenticate, authorize, bookController.deleteBookById)
 
 // ----------Review's APIs------------
 router.post('/books/:bookId/review',authenticate,authorize, reviewController.createReview)
