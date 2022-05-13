@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const moment = require("moment")
 const ObjectId = mongoose.Schema.Types.ObjectId
 
 const reviewModel = new mongoose.Schema({
@@ -6,7 +7,7 @@ const reviewModel = new mongoose.Schema({
         type: ObjectId, required: true, ref: 'book'
     },
     reviewedBy: {
-        type: String, required: true, default: 'Guest', value: 'reviewer name'
+        type: String, required: true, default: 'Guest'
     },
     reviewedAt: {
         type: Date, required: true, default: moment(new Date()).format("YYYY-MM-DD")

@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const userController=require('../controllers/userController')
-const bookController=require('../controllers/bookController')
-const reviewController=require('../controllers/reviewController')
-const{authenticate,authorize}=require('../middleware/auth')
+const userController = require('../controllers/userController')
+const bookController = require('../controllers/bookController')
+const reviewController = require('../controllers/reviewController')
+const { authenticate, authorize } = require('../middleware/auth')
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -13,22 +13,22 @@ router.post('/register', userController.createUser)
 router.post('/login', userController.userlogin)
 
 // ---------Book's APIs-------------
-router.post('/books', authenticate,bookController.createBook)
+router.post('/books', authenticate, bookController.createBook)
 
-router.get('/books',authenticate, bookController.getBooks)
+router.get('/books', authenticate, bookController.getBooks)
 
-router.get('/books/:bookId',authenticate, bookController.getBookById)
+router.get('/books/:bookId', authenticate, bookController.getBookById)
 
 router.put('/books/:bookId', authenticate, authorize, bookController.updateBook)
 
 router.delete('/books/:bookId', authenticate, authorize, bookController.deleteBookById)
 
 // ----------Review's APIs------------
-router.post('/books/:bookId/review',authenticate,authorize, reviewController.createReview)
+router.post('/books/:bookId/review', authenticate, reviewController.createReview)
 
-router.put('/books/:bookId/review/:reviewId',reviewController.updateReview)
+router.put('/books/:bookId/review/:reviewId', authenticate, reviewController.updateReview)
 
-router.delete('/books/:bookId/review/:reviewId',authenticate,authorize,reviewController.deleteReview)
+router.delete('/books/:bookId/review/:reviewId', authenticate, reviewController.deleteReview)
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 

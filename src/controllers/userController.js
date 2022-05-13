@@ -75,7 +75,7 @@ const userlogin = async (req, res) => {
         if (!user) return res.status(400).send({ status: false, message: "Email or password is  invalid" })
 
         // ---------------generating token after successful login--------------
-        const token = jwt.sign({ userId: user._id }, "BookManagement_Group36", { expiresIn: "60 minutes" })
+        const token = jwt.sign({ userId: user._id }, "BookManagement_Group36", { expiresIn: "24 hours" })
         res.status(200).send({ status: true, message: "User login Successfully", token: token })
 
     } catch (err) {
