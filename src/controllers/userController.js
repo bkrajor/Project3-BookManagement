@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const userModel = require('../models/userModel')
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 const keyValid = (key) => {
     if (typeof (key) === 'undefined' || typeof (key) === 'null') return true
     if (typeof (key) === 'string' && key.trim().length === 0) return true
@@ -40,8 +41,8 @@ const createUser = async (req, res) => {
 
         
         // if (typeof address !== "object") return res.status(400).send({ status: false, message: "Invalid address" })
-        // if (keyValid(address.street)) return res.status(400).send({ status: false, message: "Invalid street" })
-        // if (keyValid(address.city)) return res.status(400).send({ status: false, message: "Invalid city" })
+        // if (!keyValid(address.street)) return res.status(400).send({ status: false, message: "Invalid street" })
+        // if (!keyValid(address.city)) return res.status(400).send({ status: false, message: "Invalid city" })
         // if (!/^[a-zA-Z ]{3,30}$/.test(address.city)) return res.status(400).send({ status: false, message: "Invalid city name" })
         // if (!/^[1-9]\d{5}$/.test(address.pincode)) return res.status(400).send({ status: false, message: "Invalid pincode" })
 

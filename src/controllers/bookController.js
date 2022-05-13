@@ -1,8 +1,10 @@
 const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
-const { default: mongoose } = require("mongoose");
+const { default: mongoose } = require("mongoose")
+const reviewModel = require('../models/reviewModel')
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 const keyValid = (key) => {
     if (typeof (key) === 'undefined' || typeof (key) === 'null') return true
     if (typeof (key) === 'string' && key.trim().length === 0) return true
@@ -12,6 +14,7 @@ const keyValid = (key) => {
 let validObjectId = (id) => {
     return mongoose.isValidObjectId(id)
 }
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 const createBook = async (req, res) => {
@@ -108,17 +111,30 @@ const getBookById = async function (req, res) {
         if (!validObjectId(bookId)) return res.status(400).send({ status: false, message: "Invalid BookId" })
 
         const bookData = await bookModel
-            .find({ _id: bookId, isDeleted: false })
+            .findOne({ _id: bookId, isDeleted: false })
             .select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
 
-        if (bookData.length == 0) return res.status(400).send({ status: false, message: "Book is not found or book is deleted" })
+        if (!bookData) return res.status(400).send({ status: false, message: "Book is not found or book is deleted" })
 
-        return res.status(200).send({ status: true, data: bookData })
+        // --------Finding all reviews for the book----------
+        const reviewsData=await reviewModel.find({bookId:bookId,isDeleted:false})
 
+        // ---------adding reviewsData with bookData-----------
+        let bookDataWithReviews = JSON.parse(JSON.stringify(bookData))
+        bookDataWithReviews.reviewsData = reviewsData
+
+        // let bookDataWithReviews={
+        //     title:bookData.title,
+        //     excerpt:bookData.excerpt,
+        //     ........................
+        //     ........................
+        //     reviewsData:reviewsData
+        // }
+
+        return res.status(200).send({ status: true, data: bookDataWithReviews })
     }
     catch (err) {
         res.status(500).send({ status: false, message: err.message })
-
     }
 }
 
@@ -146,8 +162,8 @@ const updateBook = async function (req, res) {
             const isISBN = await bookModel.findOne({ ISBN: data.ISBN, isDeleted: false })
             if (isISBN) return res.status(400).send({ status: false, message: "ISBN is already present in the DataBase..!!" })
         }
-        if(excerpt){
-            if(keyValid(excerpt)) return res.status(400).send({ status: false, message: "Invalid excerpt" })
+        if (excerpt) {
+            if (keyValid(excerpt)) return res.status(400).send({ status: false, message: "Invalid excerpt" })
         }
         // -----------------Validation ends here--------------------
 
@@ -170,13 +186,14 @@ const deleteBookById = async function (req, res) {
 
         if (!bookData) return res.status(404).send({ status: false, msg: "Book not found or book is already deleted" })
 
+        // -------Adding isDeleted and deletedAt key in bookData----------
         bookData.isDeleted = true
         bookData.deletedAt = new Date()
         bookData.save()
 
         res.status(200).send({ status: true, msg: "Data deleted succesfully", data: bookData })
-
-    } catch (err) {
+    }
+    catch (err) {
         return res.status(500).send({ status: false, err: err.message })
     }
 }
