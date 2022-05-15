@@ -42,11 +42,11 @@ const createReview = async function (req, res) {
         if (!rating) return res.status(400).send({ status: false, message: "rating is required" })
         if (!/^[1-5]\d{0}$/.test(rating)) return res.status(400).send({ status: false, message: "Rating should be in between 1 to 5" })
 
-        if (reviewedBy) {
+        if (reviewedBy != undefined) {
             if (keyValid(reviewedBy)) return res.status(400).send({ status: false, message: "Invalid name" })
             if (!/^[a-zA-Z ]{3,30}$/.test(reviewedBy)) return res.status(400).send({ status: false, message: "Invalid name format" })
         }
-        if (review) {
+        if (review != undefined) {
             if (keyValid(review)) return res.status(400).send({ status: false, message: "Please type some review" })
         }
 
@@ -69,20 +69,19 @@ const updateReview = async function (req, res) {
         let bookId = req.params.bookId
         let reviewId = req.params.reviewId
         let data = req.body
-        const obj={}
 
         // ------------Validating bookId-------------
         if (!validObjectId(bookId)) return res.status(400).send({ status: false, message: "Invalid bookId" })
         const isBookPresent = await bookModel.findOne({ _id: bookId, isDeleted: false })
-        if (!isBookPresent) return res.status(400).send({ status: false, message: "No book present or the book is deleted " })
+        if (!isBookPresent) return res.status(404).send({ status: false, message: "No book present or the book is deleted " })
 
         // ------------Validating reviewId-------------
         if (!validObjectId(reviewId)) return res.status(400).send({ status: false, message: "Invalid reviewId" })
         const isReviewPresent = await reviewModel.findOne({ _id: reviewId, isDeleted: false })
-        if (!isReviewPresent) return res.status(400).send({ status: false, message: "No review present or the review is deleted" })
+        if (!isReviewPresent) return res.status(404).send({ status: false, message: "No review present or the review is deleted" })
 
         // ------------Matching review's bookId with bookId------------ 
-        if (isReviewPresent.bookId != bookId) return res.status(400).send({ status: false, message: "BookId in review is not matched with given book" })
+        if (isReviewPresent.bookId != bookId) return res.status(400).send({ status: false, message: "Please enter correct bookId or reviewId!!" })
 
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, Message: "Please provide something to update" })
 
@@ -91,19 +90,16 @@ const updateReview = async function (req, res) {
         // ------------Validating other keys-----------
         if (!rating) return res.status(400).send({ status: false, message: "rating is required" })
         if (!/^[1-5]\d{0}$/.test(rating)) return res.status(400).send({ status: false, message: "Rating should be in between 1 to 5" })
-        obj.rating = rating
 
-        if (reviewedBy) {
+        if (reviewedBy != undefined) {
             if (keyValid(reviewedBy)) return res.status(400).send({ status: false, message: "Invalid name" })
             if (!/^[a-zA-Z ]{3,30}$/.test(reviewedBy)) return res.status(400).send({ status: false, message: "Invalid name format" })
-            obj.reviewedBy = reviewedBy
         }
-        if (review) {
+        if (review != undefined) {
             if (keyValid(review)) return res.status(400).send({ status: false, message: "Please type some review" })
-            obj.review = review
         }
-        
-        const updateReview = await reviewModel.findByIdAndUpdate({ _id: reviewId }, obj , { new: true })
+
+        const updateReview = await reviewModel.findByIdAndUpdate({ _id: reviewId }, { ...data }, { new: true })
         res.status(200).send({ status: true, data: updateReview })
     }
     catch (err) {
@@ -121,19 +117,18 @@ const deleteReview = async function (req, res) {
         // ------------Validating bookId-------------
         if (!validObjectId(bookId)) return res.status(400).send({ status: false, message: "Invalid bookId" })
         const isBookPresent = await bookModel.findOne({ _id: bookId, isDeleted: false })
-        if (!isBookPresent) return res.status(400).send({ status: false, message: "No book present or the book is already deleted " })
+        if (!isBookPresent) return res.status(404).send({ status: false, message: "No book present or the book is already deleted " })
 
         // ------------Validating reviewId-------------
         if (!validObjectId(reviewId)) return res.status(400).send({ status: false, message: "Invalid reviewId" })
         const isReviewPresent = await reviewModel.findOne({ _id: reviewId, isDeleted: false })
-        if (!isReviewPresent) return res.status(400).send({ status: false, message: "No review present or the review is already deleted" })
+        if (!isReviewPresent) return res.status(404).send({ status: false, message: "No review present or the review is already deleted" })
 
         // ------------Matching review's bookId with bookId------------ 
-        if (isReviewPresent.bookId != bookId) return res.status(400).send({ status: false, message: "BookId in review doesn't matched with given book" })
-        
-        //-------------Adding isDeleted and deletedAt keys in reviewData-------------- 
+        if (isReviewPresent.bookId != bookId) return res.status(400).send({ status: false, message: "Please enter correct bookId or reviewId!!" })
+
+        //-------------Adding isDeleted key in reviewData-------------- 
         isReviewPresent.isDeleted = true
-        isReviewPresent.deletedAt = new Date()
         isReviewPresent.save()
 
         await bookModel.findOneAndUpdate({ _id: bookId }, { $inc: { reviews: -1 } })

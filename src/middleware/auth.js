@@ -7,10 +7,13 @@ let authenticate = async function (req, res, next) {
     try {
         const token = req.headers["x-api-key"]
         if (!token) return res.status(403).send({ status: false, message: "Authentication failed" })
-        
-        let decodedToken=jwt.verify(token, "BookManagement_Group36")
-        
-        if (!decodedToken) return res.status(400).send({ status: false, message: "Token is invalid" });
+
+        let decodedToken = jwt.verify(token, "BookManagement_Group36",{ignoreExpiration:true})
+
+        if (!decodedToken) return res.status(400).send({ status: false, message: "Token is invalid" })
+
+        if (Date.now() > decodedToken.exp*1000)
+            return res.status(400).send({message:"Session Expired"})
 
         // ------setting userId in the req---------
         req.userId = decodedToken.userId

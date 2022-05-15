@@ -65,40 +65,28 @@ const createBook = async (req, res) => {
 
 const getBooks = async (req, res) => {
     try {
-        const data = req.query
-        const filterObject = { isDeleted: false }
+        const requestBody = req.query;
+        const filterQuery = { isDeleted: false }
 
-        if (Object.keys(data).length != 0) {
-
-            const { userId, category, subcategory, title } = data
-
-            // --------------Validation for query filters---------------
-            if (userId)
-                if (!validObjectId(userId)) {
-                    filterObject.userId = userId.trim()
-                }
-            if (category)
-                if (!keyValid(category)) {
-                    filterObject.category = category.trim()
-                }
-
-            if (subcategory)
-                if (!keyValid(subcategory)) {
-                    filterObject.subCategory = category.trim()
-                }
-            if (title)
-                if (!keyValid(title)) {
-                    filterObject.title = title.trim()
-                }
+        if (Object.keys(requestBody).length != 0) {
+            if (requestBody.userId) {
+                filterQuery.userId = requestBody.userId.trim()
+            }
+            if (requestBody.category) {
+                filterQuery.category = requestBody.category.trim()
+            }
+            if (requestBody.subcategory) {
+                filterQuery.subcategory = requestBody.subcategory.split(",").map(el => el.trim())
+            }
         }
-        // ---------------Validation ends for query filters---------------
 
-        let booksData = await bookModel.find(filterObject)
-        if (booksData.length == 0) return res.status(400).send({ status: false, message: "No book found" })
-        return res.status(200).send({ status: true, message: "Book list", data: booksData })
-    }
-    catch (err) {
-        res.status(500).send({ Error: err.message })
+        let bookData = await bookModel.find(filterQuery).sort({ title: 1 })   //.select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 ,isDeleted:1 })
+        if (!bookData) return res.status(404).send({ status: false, msg: "No Book found" })
+
+        return res.status(200).send({ status: true, data: bookData })
+
+    } catch (err) {
+        res.status(500).send({ status: false, Error: err.message })
     }
 }
 
@@ -114,10 +102,10 @@ const getBookById = async function (req, res) {
             .findOne({ _id: bookId, isDeleted: false })
             .select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
 
-        if (!bookData) return res.status(400).send({ status: false, message: "Book is not found or book is deleted" })
+        if (!bookData) return res.status(404).send({ status: false, message: "Book is not found or book is deleted" })
 
         // --------Finding all reviews for the book----------
-        const reviewsData=await reviewModel.find({bookId:bookId,isDeleted:false})
+        const reviewsData = await reviewModel.find({ bookId: bookId, isDeleted: false })
 
         // ---------adding reviewsData with bookData-----------
         let bookDataWithReviews = JSON.parse(JSON.stringify(bookData))
@@ -152,17 +140,17 @@ const updateBook = async function (req, res) {
         const { title, ISBN, excerpt, releasedAt } = data
 
         // ----------------Validation starts from here---------------
-        if (title) {
+        if (title!=undefined) {
             if (keyValid(title)) return res.status(400).send({ status: false, message: "Invalid title" })
             const isTitle = await bookModel.findOne({ title: data.title, isDeleted: false })
             if (isTitle) return res.status(400).send({ status: false, message: "Title is aready present is the DataBase..!!" })
         }
-        if (ISBN) {
+        if (ISBN!=undefined) {
             if (keyValid(ISBN)) return res.status(400).send({ status: false, message: "Invalid ISBN" })
             const isISBN = await bookModel.findOne({ ISBN: data.ISBN, isDeleted: false })
             if (isISBN) return res.status(400).send({ status: false, message: "ISBN is already present in the DataBase..!!" })
         }
-        if (excerpt) {
+        if (excerpt!=undefined) {
             if (keyValid(excerpt)) return res.status(400).send({ status: false, message: "Invalid excerpt" })
         }
         // -----------------Validation ends here--------------------

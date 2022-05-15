@@ -73,7 +73,7 @@ const userlogin = async (req, res) => {
 
         // ---------------finding user in DB after validating email and password--------------
         const user = await userModel.findOne({ email: email, password: password })
-        if (!user) return res.status(400).send({ status: false, message: "Email or password is  invalid" })
+        if (!user) return res.status(404).send({ status: false, message: "User not found" })
 
         // ---------------generating token after successful login--------------
         const token = jwt.sign({ userId: user._id }, "BookManagement_Group36", { expiresIn: "24 hours" })
