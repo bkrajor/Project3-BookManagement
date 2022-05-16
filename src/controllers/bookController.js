@@ -80,8 +80,10 @@ const getBooks = async (req, res) => {
             }
         }
 
-        let bookData = await bookModel.find(filterQuery).sort({ title: 1 })   //.select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 ,isDeleted:1 })
-        if (!bookData) return res.status(404).send({ status: false, msg: "No Book found" })
+        let bookData = await bookModel.find(filterQuery)
+            .select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1, isDeleted: 1 })
+            .sort({ title: 1 })
+        if (bookData.length==0) return res.status(404).send({ status: false, msg: "No Book found" })
 
         return res.status(200).send({ status: true, data: bookData })
 
@@ -140,17 +142,17 @@ const updateBook = async function (req, res) {
         const { title, ISBN, excerpt, releasedAt } = data
 
         // ----------------Validation starts from here---------------
-        if (title!=undefined) {
+        if (title != undefined) {
             if (keyValid(title)) return res.status(400).send({ status: false, message: "Invalid title" })
             const isTitle = await bookModel.findOne({ title: data.title, isDeleted: false })
             if (isTitle) return res.status(400).send({ status: false, message: "Title is aready present is the DataBase..!!" })
         }
-        if (ISBN!=undefined) {
+        if (ISBN != undefined) {
             if (keyValid(ISBN)) return res.status(400).send({ status: false, message: "Invalid ISBN" })
             const isISBN = await bookModel.findOne({ ISBN: data.ISBN, isDeleted: false })
             if (isISBN) return res.status(400).send({ status: false, message: "ISBN is already present in the DataBase..!!" })
         }
-        if (excerpt!=undefined) {
+        if (excerpt != undefined) {
             if (keyValid(excerpt)) return res.status(400).send({ status: false, message: "Invalid excerpt" })
         }
         // -----------------Validation ends here--------------------
