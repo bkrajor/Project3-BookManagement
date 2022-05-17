@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-const moment = require("moment")
 const ObjectId = mongoose.Schema.Types.ObjectId
 
 const bookModel = new mongoose.Schema({
@@ -31,8 +30,8 @@ const bookModel = new mongoose.Schema({
         type: Boolean, default: false
     },
     releasedAt: {
-        type: Date, required: true, default: moment(new Date()).format("YYYY-MM-DD")
+        type: Date, required: true
     }
 }, { timestamps: true })
 
-module.exports = mongoose.model('books', bookModel)
+module.exports = mongoose.model('book', bookModel)

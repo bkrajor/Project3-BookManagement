@@ -6,6 +6,7 @@ const userModel = require('../models/userModel')
 const keyValid = (key) => {
     if (typeof (key) === 'undefined' || typeof (key) === 'null') return true
     if (typeof (key) === 'string' && key.trim().length === 0) return true
+    if (typeof (key) == 'Number' && key.toString().trim().length == 0) return true
     return false
 }
 
@@ -39,7 +40,7 @@ const createUser = async (req, res) => {
         if (!password) return res.status(400).send({ status: false, message: "Password is required" })
         if (!(password.length >= 8 && password.length <= 15)) return res.status(400).send({ status: false, message: "Password must be in 8 to 15 characters" })
 
-        
+
         // if (typeof address !== "object") return res.status(400).send({ status: false, message: "Invalid address" })
         // if (!keyValid(address.street)) return res.status(400).send({ status: false, message: "Invalid street" })
         // if (!keyValid(address.city)) return res.status(400).send({ status: false, message: "Invalid city" })
