@@ -13,9 +13,7 @@ const keyValid = (key) => {
 }
 
 let isValidObjectId = (id) => {
-    // if (id.length != 24) return false
-    // if(!/^[a-fA-F0-9]{24}$/.test(id)) return false
-    return mongoose.isObjectIdOrHexString(id)
+    return mongoose.isValidObjectId(id)
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
