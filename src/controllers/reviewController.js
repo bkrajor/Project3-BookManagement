@@ -51,11 +51,11 @@ const createReview = async function (req, res) {
             if (keyValid(review)) return res.status(400).send({ status: false, message: "Please type some review" })
         }
 
-        const addReview = await reviewModel.create(data)
+        const reviewData = await reviewModel.create(data)
 
         // ----------Increasing reviews count in bookData-------------
         const bookData = await bookModel.findOneAndUpdate({ _id: paramBookId }, { $inc: { reviews: 1 } }, { new: true }).lean()
-        bookData.reviewData=addReview
+        bookData.reviewData=reviewData
 
         return res.status(201).send({ status: true, message:"Review created successfully", data: bookData })
 
